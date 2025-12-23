@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إنجلشاوي Ultra | الملحمة النهائية ⚡</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --p: #7000ff; --s: #ff00c1; --a: #fee440; 
+            --bg: #030305; --card-bg: #121225;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: white; min-height: 100vh; overflow-x: hidden; }
+
+        /* اللوجو */
+        @keyframes ultra-glow {
+            0%, 100% { filter: drop-shadow(0 0 15px var(--p)); transform: scale(1) rotate(-1deg); }
+            50% { filter: drop-shadow(0 0 30px var(--s)); transform: scale(1.05) rotate(1deg); }
+        }
+        .logo-main {
+            font-size: clamp(50px, 15vw, 80px); font-weight: 900;
+            background: linear-gradient(to bottom, #fff, var(--a), var(--s));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: ultra-glow 3s infinite ease-in-out;
+            margin-bottom: 30px; display: inline-block;
+        }
+
+        /* منطقة الترتيب */
+        .word-card { 
+            background: white; color: black; padding: 12px 20px; border-radius: 15px; 
+            font-weight: 900; cursor: pointer; box-shadow: 0 5px 0 #bbb; margin: 8px; 
+            font-size: 18px; display: inline-block; transition: 0.2s;
+        }
+        .word-card.selected-hidden { display: none; }
+        .word-card:active { transform: scale(0.8); }
+
+        .drop-zone { 
+            background: rgba(112, 0, 255, 0.1); border: 3px dashed var(--p); 
+            min-height: 150px; border-radius: 30px; 
+            display: flex; flex-wrap: wrap; justify-content: center; align-items: center; 
+            padding: 20px; margin: 30px 0; direction: ltr; 
+        }
+
+        /* شاشة النهاية */
+        .final-hero {
+            background: linear-gradient(180deg, rgba(112, 0, 255, 0.2) 0%, transparent 100%);
+            padding: 50px 20px; border-radius: 40px; border: 2px solid var(--a);
+            box-shadow: 0 0 50px rgba(254, 228, 64, 0.2);
+            max-width: 500px; width: 90%; text-align: center;
+        }
+        .main-trophy { font-size: 100px; filter: drop-shadow(0 0 20px var(--a)); animation: trophy-master 2s infinite ease-in-out; }
+        @keyframes trophy-master { 0%, 100% { transform: translateY(0) rotate(-5deg); } 50% { transform: translateY(-20px) rotate(5deg); } }
+
+        /* أزرار التواصل وخلف الكواليس (صغيرة وشفافة) */
+        .floating-controls {
+            position: fixed; bottom: 15px; left: 15px; display: flex; gap: 10px; z-index: 10000;
+        }
+        .mini-btn {
+            background: var(--glass); border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.4); padding: 8px 12px; border-radius: 12px;
+            font-size: 11px; cursor: pointer; backdrop-filter: blur(5px);
+            transition: 0.3s; text-decoration: none; display: flex; align-items: center; gap: 5px;
+        }
+        .mini-btn:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: var(--p); }
+        .mini-btn.wa:hover { border-color: #25D366; color: #25D366; }
+
+        /* صفحة خلف الكواليس المطورة */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; justify-content: center; align-items: center; z-index: 11000;
+            backdrop-filter: blur(10px);
+        }
+        .credits-card {
+            background: #121225; border: 2px solid var(--p); padding: 30px;
+            border-radius: 30px; width: 90%; max-width: 400px; text-align: center;
+            position: relative; box-shadow: 0 0 40px rgba(112, 0, 255, 0.3);
+        }
+        .dev-avatar {
+            width: 80px; height: 80px; background: var(--p); border-radius: 50%;
+            margin: 0 auto 15px; display: flex; align-items: center; justify-content: center;
+            font-size: 40px; border: 3px solid var(--s);
+        }
+
+        .btn-action { 
+            background: var(--p); color: white; padding: 18px; border-radius: 20px; border: none; 
+            font-weight: 900; font-size: 20px; cursor: pointer; width: 100%; box-shadow: 0 6px 0 #4a00a8; 
+            transition: 0.2s; margin-top: 20px;
+        }
+        .full-page { position: fixed; inset: 0; z-index: 5000; background: radial-gradient(circle,#1a0033 0%,#030305 100%); display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .hero-card { padding: 40px; background: rgba(0,0,0,.85); border-radius: 45px; border: 3px solid var(--p); width: 100%; max-width: 480px; text-align: center; }
+
+        #wrong-flash {
+            position: fixed; inset: 0; z-index: 9999; display: none; 
+            flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(255, 0, 0, 0.9); animation: shake 0.2s infinite; border: 15px solid white;
+        }
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-10px,10px); } 75% { transform: translate(10px,-10px); } }
+    </style>
+</head>
+<body>
+
+<div id="credits-modal" class="modal-overlay" onclick="closeCredits()">
+    <div class="credits-card" onclick="event.stopPropagation()">
+        <div class="dev-avatar">👨‍💻</div>
+        <h2 style="color: var(--a); margin-bottom: 5px;">أحمد مصطفى</h2>
+        <p style="color: var(--s); font-weight: bold; font-size: 14px; margin-bottom: 20px;">مطور ويب | أولى ثانوي</p>
+        <div style="text-align: right; font-size: 15px; line-height: 1.6; color: #ddd; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px;">
+            تعلمت البرمجة اديلي   <span style="color: var(--a);">5 سنين</span>.. حبيت أدمج هوايتي في الويب مع حبي لـ <span style="color: var(--p);">إنجلشاوي</span> عشان أطلع لكم الملحمة دي.
+        </div>
+        <button class="btn-action" style="font-size: 16px; padding: 12px;" onclick="closeCredits()">رجوع للملحمة ⚡</button>
+    </div>
+</div>
+
+<div class="floating-controls">
+    <button class="mini-btn" onclick="openCredits()">🎬 خلف الكواليس</button>
+    <a href="https://wa.me/201234567890" target="_blank" class="mini-btn wa">💬 واتساب</a>
+</div>
+
+<div id="final-screen" class="full-page" style="display:none; z-index:10000; background:rgba(3,3,5,0.98);">
+    <div class="final-hero">
+        <div class="main-trophy">🏆</div>
+        <h1 id="winner-text" style="font-size: 28px; color: var(--a); margin: 20px 0; font-weight: 900;"></h1>
+        <p style="margin-bottom: 25px;">أنت بطل إنجلشاوي الحقيقي! 👑</p>
+        <button class="btn-action" onclick="location.reload()">العب تاني 🔄</button>
+    </div>
+</div>
+
+<div id="wrong-flash">
+    <h1 style="font-size: 100px;">🚨</h1>
+    <h2 style="font-size: 30px; font-weight: 900;">إنجلشاوي.. ركز!</h2>
+</div>
+
+<div id="screen-login" class="full-page">
+    <div class="hero-card">
+        <div class="logo-main">إنجلشاوي</div>
+        <input id="pInput" style="background:#111; border:2px solid var(--p); padding:20px; border-radius:15px; color:white; width:100%; font-size:20px; text-align:center; margin-bottom:25px; outline:none;" placeholder="اسمك إيه يا وحش؟">
+        <button class="btn-action" onclick="showWelcome()">ابدأ الملحمة 🚀</button>
+    </div>
+</div>
+
+<div id="screen-welcome" class="full-page" style="display:none">
+    <div class="hero-card" style="border-color:var(--s)">
+        <h2 style="font-size:30px">منور الدنيا يا <br><span id="welcome-name" style="color:var(--a); display:inline-block;"></span></h2>
+        <div style="margin: 30px 0; font-weight: 900;">جاهز تفرم حالات If الـ 4؟</div>
+        <button class="btn-action" style="background:var(--s); box-shadow: 0 6px 0 #a00078;" onclick="startGame()">أيوة جاهز 🔥</button>
+    </div>
+</div>
+
+<div id="explanation-screen" class="full-page" style="display:none; z-index:9000;">
+    <div class="hero-card" style="border-color: var(--s);">
+        <h1 style="color:var(--a); margin-bottom: 20px;">كبسولة إنجلشاوي 💊</h1>
+        <div style="margin-bottom: 25px;">
+            <p style="color: var(--s); font-weight: 900; margin-bottom: 10px;">الجملة الصح:</p>
+            <h2 id="correct-sentence-display" style="direction: ltr; background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; font-size: 22px;"></h2>
+        </div>
+        <div style="text-align: right; margin-bottom: 25px;">
+            <p id="logic-rule" style="color: var(--p); font-weight: 900;"></p>
+            <p id="arabic-example" style="color: var(--a); margin-top: 10px;"></p>
+        </div>
+        <button class="btn-action" style="background: #2ecc71; box-shadow: 0 6px 0 #27ae60;" onclick="hideExplanation()">فهمتها.. كمل ⚡</button>
+    </div>
+</div>
+
+<header id="top-bar" style="position:fixed; top:0; width:100%; height:80px; display:none; justify-content:space-between; align-items:center; padding:0 20px; background:rgba(0,0,0,0.95); border-bottom:3px solid var(--p); z-index:4000;">
+    <div style="font-weight:900; font-size:24px; color:var(--s);">إنجلشاوي ⚡</div>
+    <div id="user-tag-header" style="color:var(--a); font-weight:900;"></div>
+</header>
+
+<main id="game-main" style="display:none; padding: 110px 20px 20px; text-align: center;">
+    <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-weight:900; color:var(--a); font-size: 18px;">
+        <div>النقاط: <span id="score">0</span></div>
+        <div>المحاولات: <span id="tries">3</span> ❤️</div>
+    </div>
+    <div id="lesson-box" style="background:linear-gradient(135deg,#1a0033,#000); padding:20px; border-radius:25px; border:2px solid var(--p); margin-bottom:25px; text-align:right;"></div>
+    <div class="drop-zone" id="target-zone"></div>
+    <div id="source-zone" style="margin-bottom: 20px;"></div>
+    <button id="check-btn" class="btn-action" onclick="verify()" disabled>تأكيد الإجابة ✅</button>
+    <button class="btn-action" style="background:none; border:2px solid var(--a); color:var(--a); box-shadow:none; font-size:16px; width:auto; padding:10px 30px;" onclick="showExplanation()">مش فاهم؟ دوس متتكسفش 🤫</button>
+</main>
+
+<script>
+    let score = 0, currentLevel = 0, tries = 3, pName = "";
+
+    const levels = [
+        { title: "الحالة الصفرية (Zero) 🧊", words: ["If", "you", "heat", "ice", "it", "melts"], rule: "If + Present Simple -> Present Simple", arEx: "حقائق ثابتة: لو سخنت التلج هيسيح." },
+        { title: "الحالة الأولى (1st) 🚀", words: ["If", "it", "rains", "we", "will", "stay", "home"], rule: "If + Present Simple -> Will + Inf", arEx: "احتمال: لو مطرت هنقعد في البيت." },
+        { title: "الحالة الثانية (2nd) 💭", words: ["If", "I", "were", "you", "I", "would", "study"], rule: "If + Past Simple -> Would + Inf", arEx: "نصيحة: لو كنت مكانك كنت ذاكرت." },
+        { title: "الحالة الثالثة (3rd) 🕰️", words: ["If", "he", "had", "known", "he", "would", "have", "come"], rule: "If + Past Perfect -> Would have + P.P", arEx: "ندم: لو كان عرف كان جه." }
+    ];
+
+    function openCredits() { document.getElementById('credits-modal').style.display = 'flex'; }
+    function closeCredits() { document.getElementById('credits-modal').style.display = 'none'; }
+
+    function showWelcome() {
+        pName = document.getElementById('pInput').value;
+        if(!pName) return;
+        document.getElementById('screen-login').style.display="none";
+        document.getElementById('welcome-name').textContent = pName;
+        document.getElementById('screen-welcome').style.display="flex";
+    }
+
+    function startGame() {
+        document.getElementById('screen-welcome').style.display="none";
+        document.getElementById('top-bar').style.display="flex";
+        document.getElementById('game-main').style.display="block";
+        document.getElementById('user-tag-header').textContent = pName;
+        loadLevel();
+    }
+
+    function loadLevel() {
+        if(currentLevel >= levels.length) { showFinalCelebration(); return; }
+        const lvl = levels[currentLevel];
+        document.getElementById('lesson-box').innerHTML = `<h2 style="color:var(--s);">${lvl.title}</h2><p>رتب الكلمات صح يا بطل:</p>`;
+        document.getElementById('target-zone').innerHTML = "";
+        document.getElementById('source-zone').innerHTML = "";
+        
+        [...lvl.words].sort(()=>Math.random()-0.5).forEach((w) => {
+            const btn = document.createElement("span");
+            btn.className = "word-card";
+            btn.textContent = w;
+            btn.onclick = () => {
+                btn.classList.add('selected-hidden');
+                const clone = btn.cloneNode(true);
+                clone.classList.remove('selected-hidden');
+                clone.onclick = () => { clone.remove(); btn.classList.remove('selected-hidden'); updateBtn(); };
+                document.getElementById('target-zone').appendChild(clone);
+                updateBtn();
+            };
+            document.getElementById('source-zone').appendChild(btn);
+        });
+        updateBtn();
+    }
+
+    function updateBtn() {
+        document.getElementById('check-btn').disabled = document.getElementById('target-zone').children.length !== levels[currentLevel].words.length;
+    }
+
+    function verify() {
+        const user = [...document.getElementById('target-zone').children].map(c => c.textContent).join(" ");
+        if(user === levels[currentLevel].words.join(" ")) {
+            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+            score += 100;
+            document.getElementById('score').textContent = score;
+            currentLevel++; setTimeout(loadLevel, 1200);
+        } else {
+            document.getElementById('wrong-flash').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('wrong-flash').style.display = 'none';
+                tries--; document.getElementById('tries').textContent = tries;
+                if(tries <= 0) showExplanation();
+                else {
+                    document.getElementById('target-zone').innerHTML = "";
+                    document.querySelectorAll('.word-card').forEach(w => w.classList.remove('selected-hidden'));
+                }
+            }, 800);
+        }
+    }
+
+    function showExplanation() {
+        const lvl = levels[currentLevel];
+        document.getElementById('correct-sentence-display').textContent = lvl.words.join(" ");
+        document.getElementById('logic-rule').textContent = "القاعدة: " + lvl.rule;
+        document.getElementById('arabic-example').textContent = "بالمصري: " + lvl.arEx;
+        document.getElementById('explanation-screen').style.display = "flex";
+    }
+
+    function hideExplanation() {
+        document.getElementById('explanation-screen').style.display = "none";
+        tries = 3; document.getElementById('tries').textContent = tries;
+        loadLevel();
+    }
+
+    function showFinalCelebration() {
+        document.getElementById('winner-text').textContent = `كأس إنجلشاوي ليك يا ${pName}!`;
+        document.getElementById('final-screen').style.display = 'flex';
+        let end = Date.now() + (5 * 1000);
+        (function frame() {
+            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#fee440', '#7000ff'] });
+            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff00c1', '#ffffff'] });
+            if (Date.now() < end) requestAnimationFrame(frame);
+        }());
+    }
+</script>
+
+</body>
+</html>
